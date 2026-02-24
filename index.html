@@ -201,7 +201,7 @@
             transform: translateY(4px);
             box-shadow: none;
         }
-        img{float: left;}
+
         #feedback {
             margin-top: 1rem;
             font-weight: 800;
@@ -226,7 +226,7 @@
             align-items: center;
             border-radius: 35px;
         }
-
+        img{float: left;}
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
@@ -260,8 +260,8 @@
             <button onclick="resetGame()" style="width: 200px;">NEW MISSION</button>
         </div>
 
-            <div class="header">
-             <img src="asset/photo_2026-02-10_07-43-14-removebg-preview.png" alt="logo" height="50">   
+        <div class="header">
+            <img src="asset/photo_2026-02-10_07-43-14-removebg-preview.png" alt="logo" height="50">
             <h1>COSMIC ROUND</h1>
             <div class="stats-row">
                 <div class="pill">STARS: <span id="score" style="color:var(--success)">0</span></div>
@@ -285,6 +285,34 @@
     </div>
 
     <script>
+        // --- Audio Context for Beeps ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if(type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            } else { // Victory
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            }
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+        }
+
         // --- Create Stars ---
         const starBox = document.getElementById('stars');
         for (let i = 0; i < 80; i++) {
