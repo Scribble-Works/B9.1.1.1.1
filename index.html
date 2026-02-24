@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* --- TWINKLING STARS --- */
         .stars-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -48,7 +47,6 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* --- THE 50% COSMIC WAVE --- */
         .cosmic-waves-container {
             position: absolute;
             bottom: 0;
@@ -79,7 +77,6 @@
             100% { transform: translate3d(85px,0,0); }
         }
 
-        /* --- GALAXY GAME CARD --- */
         .game-container {
             position: relative;
             z-index: 10;
@@ -93,6 +90,7 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px);
             color: white;
+            transition: all 0.5s ease;
         }
 
         h1 {
@@ -106,8 +104,8 @@
         .stats-row {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 15px 0;
         }
 
         .pill {
@@ -115,16 +113,32 @@
             padding: 6px 14px;
             border-radius: 50px;
             font-weight: 800;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #cbd5e1;
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Progress Bar --- */
+        .mission-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.4s ease;
         }
 
         .question-card {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 24px;
-            padding: 2rem 1rem;
-            margin: 20px 0;
+            padding: 1.5rem 1rem;
+            margin: 15px 0;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -132,14 +146,14 @@
             color: var(--accent);
             font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             letter-spacing: 2px;
             display: block;
             margin-bottom: 10px;
         }
 
         .number-display {
-            font-size: 3.2rem;
+            font-size: 2.8rem;
             font-weight: 800;
             color: white;
             text-shadow: 0 0 15px rgba(255,255,255,0.3);
@@ -149,8 +163,8 @@
         input[type="text"] {
             width: 100%;
             box-sizing: border-box;
-            padding: 18px;
-            font-size: 1.8rem;
+            padding: 15px;
+            font-size: 1.5rem;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 18px;
             text-align: center;
@@ -159,7 +173,7 @@
             color: white;
             font-family: 'Nunito', sans-serif;
             font-weight: 700;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
             transition: all 0.3s;
         }
 
@@ -168,7 +182,7 @@
             background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 15px rgba(114, 123, 207, 0.4);
         }
-        img{float: left;}
+
         button {
             background: var(--primary);
             color: white;
@@ -187,17 +201,31 @@
             transform: translateY(4px);
             box-shadow: none;
         }
-
+        img{float: left;}
         #feedback {
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             font-weight: 800;
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             display: none;
+            font-size: 0.9rem;
         }
 
         .correct { background: var(--success); color: white; display: block !important; }
         .wrong { background: var(--error); color: white; display: block !important; }
+
+        /* --- Result Overlay --- */
+        #victory-screen {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--space-deep);
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 35px;
+        }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -212,8 +240,7 @@
     <div class="stars-container" id="stars"></div>
 
     <div class="cosmic-waves-container">
-        <svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-        viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+        <svg class="waves" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
             <defs>
                 <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
             </defs>
@@ -227,12 +254,22 @@
     </div>
 
     <div class="game-container" id="game-card">
-        <div class="header">
-            <img src="asset/photo_2026-02-10_07-43-14-removebg-preview.png" alt="logo" height="50">
+        <div id="victory-screen">
+            <h1 style="font-size: 3rem;">MISSION COMPLETE</h1>
+            <p id="final-stats" style="margin: 20px 0; font-size: 1.2rem;"></p>
+            <button onclick="resetGame()" style="width: 200px;">NEW MISSION</button>
+        </div>
+
+            <div class="header">
+             <img src="asset/photo_2026-02-10_07-43-14-removebg-preview.png" alt="logo" height="50">   
             <h1>COSMIC ROUND</h1>
             <div class="stats-row">
                 <div class="pill">STARS: <span id="score" style="color:var(--success)">0</span></div>
                 <div class="pill">STREAK: <span id="streak" style="color:var(--error)">0</span> 🔥</div>
+                <div class="pill">MISSION: <span id="q-count">1</span>/10</div>
+            </div>
+            <div class="mission-progress">
+                <div id="progress-fill"></div>
             </div>
         </div>
 
@@ -242,7 +279,7 @@
         </div>
 
         <input type="text" id="user-input" placeholder="Type answer..." autocomplete="off">
-        <button onclick="checkAnswer()">CHECK TARGET</button>
+        <button id="action-btn" onclick="checkAnswer()">CHECK STATUS</button>
 
         <div id="feedback"></div>
     </div>
@@ -263,9 +300,18 @@
         }
 
         // --- Game Logic ---
-        let score = 0, streak = 0, currentTask = {};
+        let score = 0, streak = 0, qIndex = 1, currentTask = {};
+        const TOTAL_QUESTIONS = 10;
 
         function generate() {
+            if (qIndex > TOTAL_QUESTIONS) {
+                endGame();
+                return;
+            }
+
+            document.getElementById('q-count').innerText = qIndex;
+            document.getElementById('progress-fill').style.width = `${(qIndex / TOTAL_QUESTIONS) * 100}%`;
+
             const isSF = Math.random() > 0.5;
             const num = (Math.random() * 950 + 1).toFixed(Math.floor(Math.random() * 4) + 2);
             const precision = Math.floor(Math.random() * 3) + 1;
@@ -278,12 +324,16 @@
                 : `To ${precision} Decimal Places`;
             
             const input = document.getElementById('user-input');
-            input.value = ''; input.focus();
+            input.value = ''; 
+            input.disabled = false;
+            input.focus();
             document.getElementById('feedback').style.display = 'none';
         }
 
         function checkAnswer() {
             const user = document.getElementById('user-input').value.trim();
+            if (!user) return;
+
             const fb = document.getElementById('feedback');
             const card = document.getElementById('game-card');
             let correct;
@@ -298,21 +348,48 @@
 
             if (user == correct) {
                 score += 10; streak++;
+                playSound('correct');
                 fb.innerText = "MISSION SUCCESSFUL!";
                 fb.className = "correct";
-                setTimeout(generate, 1200);
+                qIndex++;
+                setTimeout(generate, 1000);
             } else {
                 streak = 0;
+                playSound('wrong');
                 card.classList.add('shake');
                 fb.innerText = `CALIBRATION ERROR! Answer: ${correct}`;
                 fb.className = "wrong";
                 setTimeout(() => card.classList.remove('shake'), 400);
+                qIndex++;
+                setTimeout(generate, 1800);
             }
             document.getElementById('score').innerText = score;
             document.getElementById('streak').innerText = streak;
         }
 
-        document.getElementById('user-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAnswer(); });
+        function endGame() {
+            playSound('victory');
+            const vic = document.getElementById('victory-screen');
+            const stats = document.getElementById('final-stats');
+            vic.style.display = 'flex';
+            
+            let rank = score >= 80 ? "GALAXY COMMANDER" : score >= 50 ? "SPACE PILOT" : "CADET";
+            stats.innerHTML = `Final Score: ${score}<br>Rank: ${rank}`;
+        }
+
+        function resetGame() {
+            score = 0; streak = 0; qIndex = 1;
+            document.getElementById('score').innerText = "0";
+            document.getElementById('streak').innerText = "0";
+            document.getElementById('victory-screen').style.display = 'none';
+            generate();
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', (e) => { 
+            if (e.key === 'Enter') checkAnswer(); 
+        });
+
+        // Initialize
         generate();
     </script>
 </body>
